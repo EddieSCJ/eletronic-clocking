@@ -11,8 +11,7 @@ class PasswordTest {
     @Test
     fun shouldGenerateAHashPasswordEqualsToProvidedPassword() {
         val password = Password(PASSWORD_STRING)
-        val hash = password.generateBcryptPassword()
-        assertTrue(BasicOperationsHelper.bCryptPasswordEncoder.matches(PASSWORD_STRING, hash))
+        assertTrue(BasicOperationsHelper.bCryptPasswordEncoder.matches(PASSWORD_STRING, password.value))
     }
 
 }

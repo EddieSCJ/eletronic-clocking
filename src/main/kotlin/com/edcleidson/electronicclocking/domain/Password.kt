@@ -2,6 +2,12 @@ package com.edcleidson.electronicclocking.domain
 
 import com.edcleidson.electronicclocking.utils.helpers.BasicOperationsHelper
 
-data class Password(val value: String) {
-    fun generateBcryptPassword(): String = BasicOperationsHelper.bCryptPasswordEncoder.encode(value)
+class Password(password: String) {
+    val value: String
+
+    init {
+        value = generateBcryptPassword(password)
+    }
+
+    fun generateBcryptPassword(password: String): String = BasicOperationsHelper.bCryptPasswordEncoder.encode(password)
 }
