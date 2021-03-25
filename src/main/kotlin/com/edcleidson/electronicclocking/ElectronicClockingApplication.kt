@@ -8,7 +8,5 @@ import org.springframework.boot.runApplication
 class electronicclockingApplication
 
 fun main(args: Array<String>) {
-    val company = Company("Aleatory LTD", "122032142342")
-    println(company)
     runApplication<electronicclockingApplication>(*args)
 }
