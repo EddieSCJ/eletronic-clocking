@@ -11,7 +11,7 @@ import org.mockito.BDDMockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import kotlin.math.E
+import java.util.*
 
 @SpringBootTest
 class EmployeeServiceTest {
@@ -22,18 +22,33 @@ class EmployeeServiceTest {
     @MockBean
     private val employeeRepository: EmployeeRepository? = null
 
+    private val ID = "2321jh31ijh31igh31"
     private val CPF: String = "13030931463"
-    private val WRONG_CPF: String = "12233121313"
     private val EMAIL: String = "mock@gmail.com"
+
+    private val WRONG_ID = "sdkfhi1u23bikfsdui"
+    private val WRONG_CPF: String = "12233121313"
     private val WRONG_EMAIL: String = "junim@gmail.com"
 
     @BeforeEach
     @Throws(Exception::class)
     fun setUp() {
-
+        BDDMockito.given(employeeRepository?.findById(ID)).willReturn(Optional.of(employee()))
         BDDMockito.given(employeeRepository?.findByCpf(CPF)).willReturn(employee())
         BDDMockito.given(employeeRepository?.findByEmail(EMAIL)).willReturn(employee())
         BDDMockito.given(employeeRepository?.save(employee())).willReturn(employee())
+    }
+
+    @Test
+    fun shouldFindAnEmployeeById() {
+        val employee: Employee? = employeeService?.findById(ID)
+        assertNotNull(employee)
+    }
+
+    @Test
+    fun shouldReturnNullWhenSearchEmployeeByWrongId() {
+        val employee: Employee? = employeeService?.findById(WRONG_ID)
+        assertNull(employee)
     }
 
     @Test
@@ -66,7 +81,17 @@ class EmployeeServiceTest {
         assertNotNull(employee)
     }
 
-    private fun employee(): Employee =
-        Employee("Edcleidson Jr", "mock@gmail.com", "12345", "13030931463", Role.ROLE_ADMIN, "12djsanidubef")
+    private fun employee(): Employee = Employee(
+        "Edcleidson Jr",
+        "mock@gmail.com",
+        "12345",
+        "13030931463",
+        Role.ROLE_ADMIN,
+        "12djsanidubef",
+        12.9,
+        8.0f,
+        2.0f,
+        ID
+    )
 
 }
