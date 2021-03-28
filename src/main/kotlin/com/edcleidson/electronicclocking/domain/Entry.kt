@@ -3,12 +3,22 @@ package com.edcleidson.electronicclocking.domain
 import com.edcleidson.electronicclocking.domain.enums.EntryType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
-import java.util.Date
+import org.springframework.format.annotation.DateTimeFormat
+import java.util.*
+import javax.validation.constraints.NotEmpty
+import javax.validation.constraints.NotNull
 
 @Document
 data class Entry(
+
+    @field:DateTimeFormat(pattern = "MM/dd/yyyy HH:mm:ss")
+    @field:NotNull(message = "The date might be not null")
     val date: Date,
+
+    @field:NotNull(message = "The entry type is required")
     val type: EntryType,
+
+    @field:NotEmpty(message = "The employee is required")
     val employeeId: String,
     val description: String? = "",
     val localization: String? = "",
