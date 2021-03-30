@@ -1,13 +1,12 @@
 package com.edcleidson.electronicclocking.controllers
 
 import com.edcleidson.electronicclocking.domain.Company
-import com.edcleidson.electronicclocking.domain.enums.constants.HttpResponses.ALREADY_EXISTS
-import com.edcleidson.electronicclocking.domain.enums.constants.HttpResponses.BAD_REQUEST
 import com.edcleidson.electronicclocking.domain.enums.constants.HttpResponses.NOT_FOUND
 import com.edcleidson.electronicclocking.domain.enums.constants.HttpResponses.UNABLE_PERFORM_DELETE
 import com.edcleidson.electronicclocking.response.Response
 import com.edcleidson.electronicclocking.services.CompanyService
 import com.edcleidson.electronicclocking.utils.helpers.BasicOperationsHelper.Companion.API
+import com.edcleidson.electronicclocking.utils.helpers.BasicOperationsHelper.Companion.getValidatedResponseInstance
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
@@ -51,7 +50,9 @@ class CompanyController(val companyService: CompanyService) {
 
     @PostMapping
     fun post(@Valid @RequestBody company: Company, result: BindingResult): ResponseEntity<Response<Company>> {
-        val response: Response<Company> = getCompanyResponseInstance(company, false, result)
+        val alreadyExists: Boolean = companyService.companyExists(company)
+        val response: Response<Company> =
+            getValidatedResponseInstance(alreadyExists = alreadyExists, shouldExists = false, result = result)
         val responseEntity: ResponseEntity<Response<Company>> = ResponseEntity.status(response.status).body(response)
 
         if (response.errors.isEmpty()) response.data = companyService.save(company)
@@ -67,7 +68,10 @@ class CompanyController(val companyService: CompanyService) {
     ): ResponseEntity<Response<Company>> {
         val completeCompany = Company(company.socialName, company.cnpj, id)
         val findableCompany = Company("", "", id)
-        val response: Response<Company> = getCompanyResponseInstance(findableCompany, true, result)
+        val alreadyExists: Boolean = companyService.companyExists(findableCompany)
+        val response: Response<Company> =
+            getValidatedResponseInstance(alreadyExists = alreadyExists, shouldExists = true, result = result)
+
         val responseEntity: ResponseEntity<Response<Company>> = ResponseEntity.status(response.status).body(response)
 
         if (response.errors.isEmpty()) response.data = companyService.save(completeCompany)
@@ -76,15 +80,17 @@ class CompanyController(val companyService: CompanyService) {
     }
 
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: String) : ResponseEntity<Response<*>> {
+    fun delete(@PathVariable id: String): ResponseEntity<Response<*>> {
         val findableCompany = Company("", "", id)
-        val response: Response<Company> = getCompanyResponseInstance(findableCompany, true)
+        val alreadyExists: Boolean = companyService.companyExists(findableCompany)
+        val response: Response<Company> =
+            getValidatedResponseInstance(alreadyExists = alreadyExists, shouldExists = true)
 
         if (response.errors.isEmpty()) {
             val completeCompany = companyService.findById(id)
             val deleted: Boolean = companyService.deleteById(id)
 
-            if(deleted) response.data = completeCompany
+            if (deleted) response.data = completeCompany
             else {
                 response.errors.add(UNABLE_PERFORM_DELETE.getDescription())
                 response.status = UNABLE_PERFORM_DELETE.getCode()
@@ -92,31 +98,5 @@ class CompanyController(val companyService: CompanyService) {
         }
 
         return ResponseEntity.status(response.status).body(response)
-    }
-
-    fun getCompanyResponseInstance(
-        company: Company?,
-        companyShouldExists: Boolean,
-        result: BindingResult? = null,
-        response: Response<Company> = Response()
-    ): Response<Company> {
-        val alreadyExists: Boolean = companyService.companyExists(company)
-        if (!companyShouldExists && alreadyExists) {
-            response.errors.add(ALREADY_EXISTS.getDescription())
-            response.status = ALREADY_EXISTS.getCode()
-        }
-        else if (companyShouldExists && !alreadyExists) {
-            response.errors.add(NOT_FOUND.getDescription())
-            response.status = NOT_FOUND.getCode()
-        }
-
-        if (result != null && result.hasErrors()) {
-            result.allErrors.forEach {
-                response.errors.add(it.defaultMessage!!)
-            }
-            response.status = BAD_REQUEST.getCode()
-        }
-
-        return response
     }
 }
