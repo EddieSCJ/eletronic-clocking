@@ -9,7 +9,16 @@ interface EmployeeService {
 
     fun findByIdOrCpfOrEmail(id: String, cpf: String, email: String): Employee?
 
+    fun findById(id: String): Employee?
+
+    fun findByCpf(cpf: String) : Employee?
+
+    fun findByEmail(email: String) : Employee?
+
     fun save(employee: Employee): Employee
 
+    fun employeeExists(employee: Employee?) : Boolean
+
+    fun deleteById(id: String): Boolean
 
 }
