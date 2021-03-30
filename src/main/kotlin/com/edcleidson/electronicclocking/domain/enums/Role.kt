@@ -1,11 +1,10 @@
 package com.edcleidson.electronicclocking.domain.enums
 
-enum class Role(private val code: Int, private val description: String) {
-    ROLE_ADMIN(1, "Administrator"),
-    ROLE_EMPLOYEE(2, "Employee");
+enum class Role(private val code: Int) {
+    ROLE_ADMIN(1),
+    ROLE_EMPLOYEE(2);
 
     fun getCode(): Int = this.code
-    fun getDescription(): String = this.description
 
     companion object {
         fun toEnum(code: Int): Role {
